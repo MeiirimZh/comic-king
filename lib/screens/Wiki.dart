@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class Wiki extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Вики', style: TextStyle(fontSize: 30))
+    return Scaffold(
+      appBar: AppBar(title: const Text('Вики')),
+      body: Center(child: Text('Вики'))
     );
   }
 }
