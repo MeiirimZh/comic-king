@@ -18,7 +18,7 @@ class ComicVineApi {
       '$_baseUrl/characters/'
       '?api_key=$apiKey'
       '&format=json'
-      '&limit=50',
+      '&limit=500',
     );
 
     final response = await http.get(
