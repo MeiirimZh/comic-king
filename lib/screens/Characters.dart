@@ -14,12 +14,10 @@ class Characters extends StatelessWidget {
       body: FutureBuilder<List<Character>>(
         future: api.fetchCharacters(),
         builder: (context, snapshot) {
-          // Загрузка
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Ошибка
           if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -29,7 +27,6 @@ class Characters extends StatelessWidget {
             );
           }
 
-          // Данные
           final characters = snapshot.data!;
           characters.shuffle();
 
