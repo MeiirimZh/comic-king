@@ -1,12 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import '../models/character.dart';
 import '../services/comic_vine_api.dart';
 import 'CharacterDetail.dart';
+import '../main.dart';
 
 class Characters extends StatelessWidget {
   Characters({super.key});
 
   final ComicVineApi api = ComicVineApi();
+
+  Future<void> _showUnlockNotification(Character character) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      'characters_channel',
+      'Characters',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidDetails);
+
+    await notificationsPlugin.show(
+      character.id.hashCode,
+      'Новый персонаж',
+      'Вы открыли нового персонажа',
+      notificationDetails,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +65,18 @@ class Characters extends StatelessWidget {
             ),
             itemCount: randomCharacters.length,
             itemBuilder: (context, index) {
-              final character = randomCharacters[index]; // вот тут переменная character
+              final character = randomCharacters[index];
 
               return InkWell(
                 borderRadius: BorderRadius.circular(12),
-                onTap: () {
+                onTap: () async {
+                  await _showUnlockNotification(character);
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CharacterDetail(character: character),
+                      builder: (_) =>
+                          CharacterDetail(character: character),
                     ),
                   );
                 },
@@ -71,7 +97,10 @@ class Characters extends StatelessWidget {
                             character.imageUrl,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.image_not_supported, size: 48),
+                                const Icon(
+                              Icons.image_not_supported,
+                              size: 48,
+                            ),
                           ),
                         ),
                       ),

@@ -1,6 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 import 'screens/LoginScreen.dart';
+
+final FlutterLocalNotificationsPlugin notificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,6 +17,18 @@ Future<void> main() async {
     await dotenv.load(fileName: 'assets/.env');
   } catch (e) {
     debugPrint('Ошибка загрузки .env: $e');
+  }
+
+  const AndroidInitializationSettings androidInitSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initSettings =
+      InitializationSettings(android: androidInitSettings);
+
+  await notificationsPlugin.initialize(initSettings);
+
+  if (Platform.isAndroid && (await Permission.notification.isDenied)) {
+    await Permission.notification.request();
   }
 
   runApp(const MyApp());
