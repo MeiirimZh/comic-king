@@ -3,19 +3,39 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/character.dart';
 import '../services/comic_vine_api.dart';
+import '../services/favorites_service.dart';
 import 'CharacterDetail.dart';
 import '../main.dart';
 
-class Characters extends StatelessWidget {
-  Characters({super.key});
+class Characters extends StatefulWidget {
+  const Characters({super.key});
 
+  @override
+  State<Characters> createState() => _CharactersState();
+}
+
+class _CharactersState extends State<Characters> {
   final ComicVineApi api = ComicVineApi();
+  Set<String> favoriteIds = {};
 
-  Future<void> _showUnlockNotification(Character character) async {
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    final favorites = await FavoritesService.getFavorites();
+    setState(() {
+      favoriteIds = favorites.toSet();
+    });
+  }
+
+  Future<void> _showFavoriteNotification(Character character) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'characters_channel',
-      'Characters',
+      'favorites_channel',
+      'Favorites',
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -25,8 +45,8 @@ class Characters extends StatelessWidget {
 
     await notificationsPlugin.show(
       character.id.hashCode,
-      'Новый персонаж',
-      'Вы открыли нового персонажа',
+      'Избранное',
+      'Персонаж добавлен в Избранное',
       notificationDetails,
     );
   }
@@ -66,58 +86,125 @@ class Characters extends StatelessWidget {
             itemCount: randomCharacters.length,
             itemBuilder: (context, index) {
               final character = randomCharacters[index];
+              final isFavorite =
+                  favoriteIds.contains(character.id.toString());
 
-              return InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () async {
-                  await _showUnlockNotification(character);
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          CharacterDetail(character: character),
-                    ),
-                  );
-                },
-                child: Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
+              return Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Stack(
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CharacterDetail(character: character),
                           ),
-                          child: Image.network(
-                            character.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const Icon(
-                              Icons.image_not_supported,
-                              size: 48,
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.vertical(
+                                top: Radius.circular(12),
+                              ),
+                              child: Image.network(
+                                character.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (_, __, ___) => const Icon(
+                                  Icons.image_not_supported,
+                                  size: 48,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              character.name,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow:
+                                  TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight:
+                                    FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius:
+                              BorderRadius.circular(8),
+                          onTap: () async {
+                            if (!isFavorite) {
+                              final added =
+                                  await FavoritesService
+                                      .addToFavorites(
+                                character.id
+                                    .toString(),
+                              );
+
+                              if (added) {
+                                await _showFavoriteNotification(
+                                    character);
+
+                                setState(() {
+                                  favoriteIds.add(
+                                      character.id
+                                          .toString());
+                                });
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding:
+                                const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isFavorite
+                                  ? Colors.red
+                                  : Colors.blue,
+                              borderRadius:
+                                  BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              isFavorite
+                                  ? 'Избранное'
+                                  : 'Добавить',
+                              style:
+                                  const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight:
+                                    FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          character.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },
