@@ -3,6 +3,8 @@ import 'package:comic_king/screens/Home.dart';
 import 'package:comic_king/screens/Characters.dart' as myScreens;
 import 'package:comic_king/screens/Wiki.dart';
 
+import './src/theme//app_colors.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -26,6 +28,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: AppColors.primary,
         currentIndex: _selectedIndex,
         onTap: _navigateBottomBar,
         type: BottomNavigationBarType.fixed,

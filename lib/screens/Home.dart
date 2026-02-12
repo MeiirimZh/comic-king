@@ -6,6 +6,8 @@ import '../models/character.dart';
 import '../services/comic_vine_api.dart';
 import 'CharacterDetail.dart';
 
+import '../src/theme/app_colors.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -32,8 +34,7 @@ class _HomeState extends State<Home> {
     final prefs = await SharedPreferences.getInstance();
 
     final today = DateTime.now();
-    final todayString =
-        "${today.year}-${today.month}-${today.day}";
+    final todayString = "${today.year}-${today.month}-${today.day}";
 
     final savedDate = prefs.getString(_dateKey);
     final savedCharacterId = prefs.getString(_characterIdKey);
@@ -64,11 +65,9 @@ class _HomeState extends State<Home> {
     return characters[random.nextInt(characters.length)];
   }
 
-  Future<void> _saveDailyCharacter(
-      SharedPreferences prefs, String date) async {
+  Future<void> _saveDailyCharacter(SharedPreferences prefs, String date) async {
     await prefs.setString(_dateKey, date);
-    await prefs.setString(
-        _characterIdKey, dailyCharacter!.id.toString());
+    await prefs.setString(_characterIdKey, dailyCharacter!.id.toString());
   }
 
   @override
@@ -76,81 +75,69 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(title: const Text('Главное')),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : dailyCharacter == null
-              ? const Center(child: Text('Ошибка загрузки'))
-              : Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: InkWell(
+          ? const Center(child: Text('Ошибка загрузки'))
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            CharacterDetail(character: dailyCharacter!),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CharacterDetail(
-                                character: dailyCharacter!),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16),
                           ),
-                        );
-                      },
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16),
+                          child: Image.network(
+                            dailyCharacter!.imageUrl,
+                            height: 250,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                const Icon(Icons.image_not_supported, size: 60),
+                          ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
-                              child: Image.network(
-                                dailyCharacter!.imageUrl,
-                                height: 250,
-                                fit: BoxFit.cover,
-                                errorBuilder:
-                                    (_, __, ___) =>
-                                        const Icon(
-                                  Icons.image_not_supported,
-                                  size: 60,
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Персонаж дня',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  const Text(
-                                    'Персонаж дня',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight:
-                                          FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    dailyCharacter!.name,
-                                    textAlign:
-                                        TextAlign.center,
-                                    style:
-                                        const TextStyle(
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 8),
+                              Text(
+                                dailyCharacter!.name,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
+              ),
+            ),
     );
   }
 }

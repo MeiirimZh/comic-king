@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'screens/LoginScreen.dart';
 
+import 'package:comic_king/src/theme/app_colors.dart';
+
 final FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -39,8 +41,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: AppColors.bg,
+      ),
       home: LoginScreen(),
     );
   }
