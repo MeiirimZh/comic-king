@@ -62,7 +62,9 @@ class _CharactersState extends State<Characters> {
         future: api.fetchCharacters(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
 
           if (snapshot.hasError) {
@@ -89,17 +91,18 @@ class _CharactersState extends State<Characters> {
             itemCount: randomCharacters.length,
             itemBuilder: (context, index) {
               final character = randomCharacters[index];
-              final isFavorite = favoriteIds.contains(character.id.toString());
+              final isFavorite =
+                  favoriteIds.contains(character.id.toString());
 
               return Card(
                 elevation: 3,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                clipBehavior: Clip.antiAlias,
                 child: Stack(
                   children: [
                     InkWell(
-                      borderRadius: BorderRadius.circular(12),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -113,16 +116,18 @@ class _CharactersState extends State<Characters> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12),
-                              ),
-                              child: Image.network(
-                                character.imageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.image_not_supported,
-                                  size: 48,
+                            child: Container(
+                              color: Colors.black,
+                              child: Center(
+                                child: Image.network(
+                                  character.imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(
+                                    Icons.image_not_supported,
+                                    size: 48,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -142,7 +147,6 @@ class _CharactersState extends State<Characters> {
                         ],
                       ),
                     ),
-
                     Positioned(
                       top: 8,
                       right: 8,
@@ -154,14 +158,14 @@ class _CharactersState extends State<Characters> {
                             if (!isFavorite) {
                               final added =
                                   await FavoritesService.addToFavorites(
-                                    character.id.toString(),
-                                  );
+                                character.id.toString(),
+                              );
 
                               if (added) {
                                 await _showFavoriteNotification(character);
-
                                 setState(() {
-                                  favoriteIds.add(character.id.toString());
+                                  favoriteIds
+                                      .add(character.id.toString());
                                 });
                               }
                             }
@@ -172,11 +176,14 @@ class _CharactersState extends State<Characters> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: isFavorite ? Colors.red : Colors.blue,
+                              color:
+                                  isFavorite ? Colors.red : Colors.blue,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              isFavorite ? 'Избранное' : 'Добавить',
+                              isFavorite
+                                  ? 'Избранное'
+                                  : 'Добавить',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,

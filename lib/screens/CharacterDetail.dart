@@ -16,13 +16,20 @@ class CharacterDetail extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                character.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.image_not_supported, size: 100),
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  color: Colors.black,
+                  child: Image.network(
+                    character.imageUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.image_not_supported, size: 100, color: Colors.white),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -36,14 +43,22 @@ class CharacterDetail extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             character.description != null && character.description!.isNotEmpty
-                ? Html(
-                    data: character.description!,
-                    style: {
-                      "body": Style(
-                        fontSize: FontSize(16),
-                        lineHeight: LineHeight(1.5),
-                      ),
-                    },
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Html(
+                      data: character.description!,
+                      style: {
+                        "body": Style(
+                          fontSize: FontSize(16),
+                          lineHeight: LineHeight(1.5),
+                        ),
+                        "img": Style(
+                          width: Width(300),
+                          margin: Margins.symmetric(vertical: 12),
+                          display: Display.block,
+                        )
+                      },
+                    )
                   )
                 : const Text(
                     'Описание недоступно',

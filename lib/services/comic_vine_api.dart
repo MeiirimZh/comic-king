@@ -7,6 +7,12 @@ class ComicVineApi {
   static const String _baseUrl =
       'https://comicvine.gamespot.com/api';
 
+  static const Set<int> _allowedPublishers = {
+    31,
+    10,
+    135,
+  };
+
   Future<List<Character>> fetchCharacters() async {
     final apiKey = dotenv.env['COMIC_VINE_API_KEY'];
 
@@ -18,7 +24,7 @@ class ComicVineApi {
       '$_baseUrl/characters/'
       '?api_key=$apiKey'
       '&format=json'
-      '&limit=500',
+      '&limit=500'
     );
 
     final response = await http.get(
@@ -40,8 +46,13 @@ class ComicVineApi {
 
     final List results = decoded['results'];
 
-    return results
-        .map((json) => Character.fromJson(json))
-        .toList();
+    final characters = results
+    .map((json) => Character.fromJson(json))
+    .where((character) =>
+        character.publisherId != null &&
+        _allowedPublishers.contains(character.publisherId))
+    .toList();
+
+    return characters;
   }
 }

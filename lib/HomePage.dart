@@ -33,9 +33,8 @@ class _HomePageState extends State<HomePage> {
         onTap: _navigateBottomBar,
         type: BottomNavigationBarType.fixed,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главное'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Персонажи'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Вики'),
         ],
       ),
     );
